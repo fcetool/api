@@ -26,4 +26,4 @@ jobs:
         run: pip install -U "huggingface_hub[cli]>=1.19.0"
 
       - name: Deploy to Space
-        run: hf upload spaces/offici5l/fcetool . --commit-message "Auto-deploy from api/ (${GITHUB_SHA::7})"
+        run: hf upload spaces/offici5l/fcetool ./api --commit-message "Auto-deploy from api/ (${GITHUB_SHA::7})"
