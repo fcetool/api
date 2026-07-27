@@ -1,0 +1,29 @@
+name: Deploy to Hugging Face Space
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HF_OIDC_RESOURCE: spaces/offici5l/fcetool
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Install hf CLI
+        run: pip install -U "huggingface_hub[cli]>=1.19.0"
+
+      - name: Deploy to Space
+        run: hf upload spaces/offici5l/fcetool . --commit-message "Auto-deploy from api/ (${GITHUB_SHA::7})"
