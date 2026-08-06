@@ -261,6 +261,7 @@ async def extract_target(request: Request, payload: dict):
                 content={
                     "status": "failed", 
                     "message": result.get("error", "Extraction failed"),
+                    "url": result.get("url", url),
                     "duration_seconds": int(time.time() - start_time)
                 }
             )
