@@ -142,6 +142,48 @@ async def global_exception_handler(request: Request, exc: Exception):
         }
     )
 
+@app.get("/check")
+@limiter.limit("15/minute")
+async def check_cached(request: Request, url: str, target: str):
+    if not url or not target:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "status": "error",
+                "message": "Missing 'url' or 'target' query parameter."
+            }
+        )
+
+    if target not in SUPPORTED_TARGETS:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "status": "error",
+                "message": f"Unsupported target type. Supported: {', '.join(SUPPORTED_TARGETS)}"
+            }
+        )
+
+    storage_path = generate_storage_path(url)
+
+    if hf_api and check_file_in_dataset(storage_path, target):
+        cache_url = f"https://huggingface.co/datasets/{DATASET_REPO}/resolve/main/{storage_path}/{target}"
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status": "found",
+                "download_url": cache_url,
+                "target": target
+            }
+        )
+
+    return JSONResponse(
+        status_code=200,
+        content={
+            "status": "not_found",
+            "target": target
+        }
+    )
+
 @app.post("/extract")
 @limiter.limit("3/minute")
 async def extract_target(request: Request, payload: dict):
